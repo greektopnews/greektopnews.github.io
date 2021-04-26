@@ -1,0 +1,64 @@
+$().ready(function() {
+	
+	if ($('#fixedEnd').length){
+		var lastOffset=0;
+
+		var getFixedRight = function(){
+			
+			var sticky_fixedRight_start = $('.sidebar').offset().top;
+			var sticky_fixedRight_ad_height = $('#fixedRight_ad').height();
+			
+			if($('#fixedRight_ad').hasClass('fixedAd')){
+				sticky_fixedRight_ad_height = sticky_fixedRight_ad_height - 20;
+			}
+			var scroll_top = $(window).scrollTop(); // our current vertical position from the top
+			//$('#debugstatus').text(scroll_top + "-"+(sticky_fixedRight_start-79) );
+			
+			if (scroll_top > 55  &&  scroll_top > sticky_fixedRight_start-79  &&  scroll_top < 750+sticky_fixedRight_start) { 
+				
+				$('#fixedRight').css('margin-top', ( scroll_top - sticky_fixedRight_start + 79 )+'px');
+				$('#fixedRight_data').css('padding-top','0');
+				lastOffset = $('#fixedRight').offset().top;
+
+				if ($('#fixedRight_ad').hasClass('fixedAd')){
+					$('#fixedRight_ad').removeClass('fixedAd');
+				}
+				//$('#debugstatus').text(scroll_top + "-"+sticky_fixedRight_start + "-"+sticky_fixedRight_ad_height);
+			
+			} else if ( scroll_top >= 750+sticky_fixedRight_start-55 ) {
+				
+				if ( scroll_top >= lastOffset+sticky_fixedRight_ad_height-55 ) {
+
+					if (lastOffset){$('#fixedRight_data').css('padding-top',(sticky_fixedRight_ad_height+20)+'px');}
+					$('#fixedRight_ad').addClass('fixedAd');
+					//$('#debugstatus').text(scroll_top + "///FIXED AD///"+(lastOffset+sticky_fixedRight_ad_height-55) + "-"+sticky_fixedRight_ad_height);
+					
+				} else if($('#fixedRight_ad').hasClass('fixedAd')){
+					$('#fixedRight_ad').removeClass('fixedAd');
+					$('#fixedRight_data').css('padding-top','0');
+					//$('#debugstatus').text(scroll_top + "----NOT FIXED----"+(lastOffset+sticky_fixedRight_ad_height-55) + "-"+sticky_fixedRight_ad_height);
+
+				}
+				
+			} else if (scroll_top < sticky_fixedRight_start) {
+				$('#fixedRight').css('margin-top', '0px');
+				
+				
+			}
+		};
+		 
+		getFixedRight();
+		$(window).scroll(function() {
+			getFixedRight();
+		});
+		
+		$(window).scroll($.debounce( 180, function(){
+			
+   			getFixedRight();
+			//$('#debugstatus').text('done');
+			
+		}));
+
+	}
+	
+});

@@ -1,0 +1,170 @@
+(function(b,c){var $=b.jQuery||b.Cowboy||(b.Cowboy={}),a;$.throttle=a=function(e,f,j,i){var h,d=0;if(typeof f!=="boolean"){i=j;j=f;f=c}function g(){var o=this,m=+new Date()-d,n=arguments;function l(){d=+new Date();j.apply(o,n)}function k(){h=c}if(i&&!h){l()}h&&clearTimeout(h);if(i===c&&m>e){l()}else{if(f!==true){h=setTimeout(i?k:l,i===c?e-m:e)}}}if($.guid){g.guid=j.guid=j.guid||$.guid++}return g};$.debounce=function(d,e,f){return f===c?a(d,e,false):a(d,f,e!==false)}})(this);
+
+!function(e){"use strict";"function"==typeof define&&define.amd?define(["jquery"],e):jQuery&&!jQuery.fn.hoverIntent&&e(jQuery)}(function(e){"use strict";var t,n,i={interval:100,sensitivity:6,timeout:0},o=0,u=function(e){t=e.pageX,n=e.pageY},r=function(e,i,o,v){if(Math.sqrt((o.pX-t)*(o.pX-t)+(o.pY-n)*(o.pY-n))<v.sensitivity)return i.off(o.event,u),delete o.timeoutId,o.isActive=!0,e.pageX=t,e.pageY=n,delete o.pX,delete o.pY,v.over.apply(i[0],[e]);o.pX=t,o.pY=n,o.timeoutId=setTimeout(function(){r(e,i,o,v)},v.interval)},v=function(e,t,n,i){return delete t.data("hoverIntent")[n.id],i.apply(t[0],[e])};e.fn.hoverIntent=function(t,n,a){var s=o++,f=e.extend({},i);e.isPlainObject(t)?(f=e.extend(f,t),e.isFunction(f.out)||(f.out=f.over)):f=e.isFunction(n)?e.extend(f,{over:t,out:n,selector:a}):e.extend(f,{over:t,out:t,selector:n});var d=function(t){var n=e.extend({},t),i=e(this),o=i.data("hoverIntent");o||i.data("hoverIntent",o={});var a=o[s];a||(o[s]=a={id:s}),a.timeoutId&&(a.timeoutId=clearTimeout(a.timeoutId));var d=a.event="mousemove.hoverIntent.hoverIntent"+s;if("mouseenter"===t.type){if(a.isActive)return;a.pX=n.pageX,a.pY=n.pageY,i.off(d,u).on(d,u),a.timeoutId=setTimeout(function(){r(n,i,a,f)},f.interval)}else{if(!a.isActive)return;i.off(d,u),a.timeoutId=setTimeout(function(){v(n,i,a,f.out)},f.timeout)}};return this.on({"mouseenter.hoverIntent":d,"mouseleave.hoverIntent":d},f.selector)}});
+
+
+function getViewPort()
+{
+    var screenWidth, screenHeight;
+    if ( typeof window.innerWidth == 'number' )
+    {
+        screenWidth = window.innerWidth;
+        screenHeight = window.innerHeight;
+    } else if ( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) )
+    {
+        screenWidth = document.documentElement.clientWidth;
+        screenHeight = document.documentElement.clientHeight;
+    } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+        screenWidth = document.body.clientWidth;
+        screenHeight = document.body.clientHeight;
+    }
+    return { width: screenWidth, height: screenHeight };
+}
+
+function getTagInfo()
+{
+    window.adgroupid = window.adgroupid == undefined ? Math.round( Math.random() * 1000 ) : window.adgroupid;
+    var viewPort = getViewPort();
+    var alias = viewPort.width < 768 ? 'mobile' : ( viewPort.width >= 768 && viewPort.width <= 1006 ? 'tablet' : 'display' );
+    var domain = alias == 'mobile' ? 'a' : ( alias == 'tablet' ? 'a' : 'adserver' );
+    return { domain: domain, alias: alias, adgroupid: adgroupid, viewPort: viewPort }
+}
+	
+$().ready(function() {
+	
+	var windowSize = getViewPort();
+
+// ------------------------------------------------------------
+	
+	var topHeaderMenu_outerHeight = $('#topHeaderMenu').outerHeight();
+	var sticky_menu_offset_top = $('#topHeaderMenu').offset().top;
+	var wasSmallHeader = $('#topHeaderMenu').hasClass('smallHeader');
+	//alert( $('#mainArea1').offset().top );
+	
+	var position = $(window).scrollTop();
+	
+    var sticky_menu = function(){
+        var scroll_top = $(window).scrollTop(); // our current vertical position from the top
+		windowSize = getViewPort();
+		
+        if (scroll_top > sticky_menu_offset_top) { 
+			$('#skinform').css('padding-top', topHeaderMenu_outerHeight+'px');
+            $('#topHeaderMenu').css({ 'position': 'fixed', 'top':0 });
+			if (windowSize.width>767 && !wasSmallHeader){$('#topHeaderMenu').addClass('smallHeader');}
+			
+        } else {
+
+			if (windowSize.width<768){
+			//	$('#skinform').css('padding-top', topHeaderMenu_outerHeight+'px');
+           // 	$('#topHeaderMenu').css({ 'position': 'fixed', 'top':0 });
+				
+			}
+			else{
+				$('#skinform').css('padding-top', '0px');
+				if (!wasSmallHeader){$('#topHeaderMenu').removeClass('smallHeader');}
+            	$('#topHeaderMenu').css({ 'position': 'relative' });
+			}
+
+        } 
+		position = scroll_top;
+	    
+    };
+     
+    sticky_menu();
+    $(window).scroll(function() {
+		sticky_menu();
+		$.debounce( 180, function(){
+			sticky_menu();
+		});
+    });
+	$(window).resize(function() {
+		sticky_menu();
+		$.debounce( 180, function(){
+			sticky_menu();
+		});
+	});
+
+	
+	function windowMoveTop(){
+		$('html, body').animate({scrollTop: 0}, 500);
+	}
+
+	function windowMoveTop(){
+		$('html, body').animate({scrollTop: 0}, 500);
+	}
+	
+/*	$("#weatherMenu").load("/blocks/weather_now.asp");
+	$("#weatherMenu").hover(function(){
+		$("#weatherMenuPad").load("/blocks/weather_now_menu.asp");
+	});
+*/				   
+
+
+});
+
+	// Keep search toggling out of the global scope
+	(function(window, document, undefined) {
+	  // Variables
+	  var open = document.querySelector('.button-open');
+	  var close = document.querySelector('.button-close');
+	  var overlay = document.querySelector('.overlay');
+	  var search = document.querySelector('.input-search');
+	  
+	  // Focus on an element
+	  var focusOn = function(element) {
+		// Only focus on the element if it contains the relevant
+		// class name that means it's actually visible
+		if (overlay.classList.contains('showing')) {
+		  element.focus();
+		}
+		// Otherwise remove the focus from the element
+		else {
+		  element.blur();
+		}
+	  }
+	  
+	  // Toggles a set of class names on an element
+	  var toggler = function() {
+		// Toggle the classes which set off the transition
+		overlay.classList.toggle('hiding');
+		overlay.classList.toggle('showing');
+		
+		// Once the overlay's transition ends focus the search field
+		overlay.addEventListener('transitionend', focusOn.bind(null, search), false);
+		
+		// Prevent the clicks from navigating away
+		return false;
+	  }
+	  
+	  // Add the event listener to the toggle
+	  open.addEventListener('click', toggler, false);
+	  close.addEventListener('click', toggler, false);
+	})(window, document);
+
+
+
+	/* Set the width of the side navigation to 250px */
+	function openNav() {
+		document.getElementById("sideMenu").style.left = "0px";
+		document.getElementById("sideMenu_spider").style.display = "block";
+		document.getElementById("sideMenu_spider").style.zIndex = "1000002";
+		document.getElementById("sideMenu_spider").style.opacity = ".4";
+		document.getElementsByTagName("html")[0].style.overflow = "hidden";
+	}
+	/* Set the width of the side navigation to 0 */
+	function closeNav() {
+		document.getElementById("sideMenu").style.left = "-450px";
+		document.getElementById("sideMenu_spider").style.opacity = "0";
+		setTimeout(function() {
+			document.getElementById("sideMenu_spider").style.zIndex = "-10";
+			document.getElementById("sideMenu_spider").style.display = "none";
+		}, 200);
+		document.getElementsByTagName("html")[0].style.overflow = "visible";
+		$(".sideMenu input[type='radio']").prop("checked",false);
+	}
+	document.onkeydown = function(e) {
+		if (e.which == 27) {
+			closeNav();
+			return false;
+		}
+	}
